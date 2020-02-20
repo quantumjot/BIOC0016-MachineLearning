@@ -16,6 +16,7 @@ from .model import load_model
 
 CHANNEL_ORDER = ['Brightfield', 'GFP', 'RFP']
 STATES = ['interphase', 'prometaphase', 'metaphase', 'anaphase', 'apoptosis', 'unknown']
+MAX_IMAGE_REQUEST = 100
 
 
 
@@ -30,7 +31,7 @@ class _DatasetContainer:
         return self.__data.shape[0]
 
     def get_random(self, num_images=1):
-        assert(num_images>0 and num_images<len(self))
+        assert(num_images>0 and num_images<MAX_IMAGE_REQUEST)
         random.shuffle(self.__idx)
         images = [normalize_image(self.__data[i,...]) for i in self.__idx[:num_images]]
         return images, self.__idx[:num_images]
@@ -126,7 +127,9 @@ def plot_images(images, image_idx, cols=5):
     num_images = len(images)
     rows = np.ceil(num_images/cols)
 
-    plt.figure(figsize=(16,16))
+    fig_height = 3*rows
+
+    plt.figure(figsize=(15, fig_height))
     for i in range(num_images):
         plt.subplot(rows, cols, i+1)
         plt.imshow(images[i], cmap=plt.cm.gray)
