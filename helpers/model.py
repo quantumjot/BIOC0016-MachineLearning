@@ -13,10 +13,10 @@ def simple_CNN(convolutional_features=32,
 
     image = KL.Input(shape=[32, 32, 1], name="input")
 
-    conv1 = conv = KL.Conv2D(convolutional_features, 3, activation='relu', padding='valid')(image)
+    conv1 = KL.Conv2D(convolutional_features, 3, activation='relu', padding='valid')(image)
     pool1 = KL.MaxPooling2D(pool_size=(2, 2))(conv1)
 
-    conv2 = conv = KL.Conv2D(convolutional_features, 3, activation='relu', padding='valid')(pool1)
+    conv2 = KL.Conv2D(convolutional_features, 3, activation='relu', padding='valid')(pool1)
     pool2 = KL.MaxPooling2D(pool_size=(2, 2))(conv2)
 
     flat1 = KL.Flatten()(pool2)
