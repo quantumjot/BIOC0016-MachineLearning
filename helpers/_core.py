@@ -18,28 +18,6 @@ CHANNEL_ORDER = ['Brightfield', 'GFP', 'RFP']
 STATES = ['interphase', 'prometaphase', 'metaphase', 'anaphase', 'apoptosis', 'unknown']
 
 
-# some notebook styling
-def css_styling():
-
-    style = """<style>
-                    .task_red {background-color: #ffdddd;
-                               border-color: #ee8888;
-                               border-left: 5px solid #ee8888;
-                               padding: 0.5em;}
-                    .task_green {background-color: #ddffdd;
-                                 border-color: #88ee88;
-                                 border-left: 5px solid #88ee88;
-                                 padding: 0.5em;}
-                    .task_blue {background-color: #ddddff;
-                                border-color: #8888ee;
-                                border-left: 5px solid #8888ee;
-                                padding: 0.5em;}
-              </style>"""
-
-    from IPython.core.display import HTML
-    return HTML(style)
-
-
 
 
 
