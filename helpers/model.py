@@ -1,30 +1,47 @@
 __author__ = "Alan R. Lowe"
 __email__ = "a.lowe@ucl.ac.uk"
 
+import logging
 import random
 import numpy as np
 import tensorflow.keras as K
 import tensorflow.keras.layers as KL
 
+# hack to stop too many warnings
+from tensorflow.python.util import deprecation
+deprecation._PRINT_DEPRECATION_WARNINGS = False
+
 # from _core import normalize_image
 
-def simple_CNN(convolutional_features=32,
-               dense_features=128):
+def simple_CNN(convolutional_kernels=32):
+    """ simple_CNN
 
-    image = KL.Input(shape=[32, 32, 1], name="input")
+    Build a simple convolutional classifier, that returns a one-hot classification (5,)
 
-    conv1 = KL.Conv2D(convolutional_features, 3, activation='relu', padding='valid')(image)
+    Args:
+        convolutional_kernels: the number of kernels for the conv layers
+
+    Returns:
+        a keras model of the CNN
+    """
+    # first, set up the input layer
+    image = KL.Input(shape=[None, None, 1], name="input")
+
+    # convolutions and pooling
+    conv1 = KL.Conv2D(convolutional_kernels, (3, 3), activation='relu', padding='valid')(image)
     pool1 = KL.MaxPooling2D(pool_size=(2, 2))(conv1)
 
-    conv2 = KL.Conv2D(convolutional_features, 3, activation='relu', padding='valid')(pool1)
+    conv2 = KL.Conv2D(convolutional_kernels, (3, 3), activation='relu', padding='valid')(pool1)
     pool2 = KL.MaxPooling2D(pool_size=(2, 2))(conv2)
 
+    # flatten the data and fully connect to output layer
     flat1 = KL.Flatten()(pool2)
-
     logits = KL.Dense(5, activation='linear')(flat1)
     softmax = KL.Activation('softmax', name='output')(logits)
 
-    return K.Model(inputs=image, outputs=softmax, name="ConvolutionalNeuralNetwork")
+    # return the full model
+    return K.Model(inputs=image, outputs=softmax, name="Convolutional_Neural_Network")
+
 
 
 
@@ -73,6 +90,7 @@ def train_model(num_epochs=10):
 
 
 def load_model():
+    """ load the pre-trained model """
     return K.models.load_model('./data/model.h5')
 
 

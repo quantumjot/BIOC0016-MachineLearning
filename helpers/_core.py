@@ -3,6 +3,7 @@ __email__ = "a.lowe@ucl.ac.uk"
 
 import os
 import random
+import logging
 
 import numpy as np
 from skimage import io
@@ -15,6 +16,31 @@ from .model import load_model
 
 CHANNEL_ORDER = ['Brightfield', 'GFP', 'RFP']
 STATES = ['interphase', 'prometaphase', 'metaphase', 'anaphase', 'apoptosis', 'unknown']
+
+
+# some notebook styling
+def css_styling():
+
+    style = """<style>
+                    .task_red {background-color: #ffdddd;
+                               border-color: #ee8888;
+                               border-left: 5px solid #ee8888;
+                               padding: 0.5em;}
+                    .task_green {background-color: #ddffdd;
+                                 border-color: #88ee88;
+                                 border-left: 5px solid #88ee88;
+                                 padding: 0.5em;}
+                    .task_blue {background-color: #ddddff;
+                                border-color: #8888ee;
+                                border-left: 5px solid #8888ee;
+                                padding: 0.5em;}
+              </style>"""
+
+    from IPython.core.display import HTML
+    return HTML(style)
+
+
+
 
 
 class _DatasetContainer:
@@ -134,14 +160,46 @@ def plot_images(images, image_idx, cols=5):
 
 def validate_annotation(annotation):
     """ validate the student annotation """
+
+    validate = True
+
     # check that this is a dictionary
-    assert(isinstance(annotation, dict))
+    if not isinstance(annotation, dict):
+        logging.error('The annotation must be a dictionary')
+        validate = False
 
     # check that it has the correct keys
-    assert(all([k in STATES for k in annotation.keys()]))
+    if not all([k in STATES for k in annotation.keys()]):
+        unknown = ', '.join([str(k) for k in annotation.keys() if k not in STATES])
+        logging.error(f'Dictionary keys not recognized: {unknown}')
+        validate = False
 
     # check to make sure the numbers make sense
-    pass
+    values = list(annotation.values())
+    merged = []
+    while values:
+        merged += values.pop(0)
+
+    # check that all entries are integers
+    if not all([isinstance(v, int) for v in merged]):
+        logging.error('Annotation lists must be integer numbers')
+        validate = False
+    else:
+        # check that they fall within a useful range
+        if not all([v>=0 and v<len(dataset) for v in merged]):
+            logging.error('Annotation outside of range')
+            validate = False
+
+    # finally, check for duplications
+    unique = list(set(merged))
+    if any([merged.count(v)>1 for v in unique]):
+        logging.error('Duplicate annotation found')
+        validate = False
+
+    if not validate:
+        raise ValueError('Validation failed')
+
+    return validate
 
 
 
