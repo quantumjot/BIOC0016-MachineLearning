@@ -16,6 +16,7 @@ from .model import load_model
 
 CHANNEL_ORDER = ['Brightfield', 'GFP', 'RFP']
 STATES = ['interphase', 'prometaphase', 'metaphase', 'anaphase', 'apoptosis', 'unknown']
+PRED_STATES = STATES[0:5]
 MAX_IMAGE_REQUEST = 100
 
 
@@ -136,6 +137,43 @@ def plot_images(images, image_idx, cols=5):
         plt.title(f'Image #{image_idx[i]}')
         plt.axis('off')
     plt.show()
+
+
+def get_label_from_ID(annotation, ID):
+    for k in annotation:
+        if ID in annotation[k]:
+            return k
+    return None
+
+
+def plot_predictions(images, image_idx, predictions, annotation=None):
+    num_images = min(len(images), 5)
+    for i in range(num_images):
+        plt.figure(figsize=(15,5))
+        plt.subplot(1,2,1)
+        plt.imshow(images[i], cmap=plt.cm.gray)
+        plt.title(f'Image #{image_idx[i]}')
+        plt.axis('off')
+        plt.subplot(1,2,2)
+        rect = plt.barh(np.arange(len(PRED_STATES)),
+                        predictions[i,:],
+                        align='center',
+                        height=0.75,
+                        tick_label=[s.capitalize() for s in PRED_STATES])
+
+        pred = STATES[int(np.argmax(predictions[i,:]))].capitalize()
+        ground_truth = None
+        if annotation is not None:
+            ground_truth = get_label_from_ID(annotation, image_idx[i])
+            if ground_truth:
+                y = STATES.index(ground_truth)
+                if y<5: rect[y].set_facecolor('red')    # can't plot unknown
+
+        plt.xlim([0., 1.1])
+        plt.xlabel('P(label|data)')
+        plt.title(f'Prediction: {pred}, Ground Truth: {ground_truth}')
+        plt.show()
+
 
 
 
