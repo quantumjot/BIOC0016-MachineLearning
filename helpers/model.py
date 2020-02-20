@@ -94,5 +94,13 @@ def load_model():
     return K.models.load_model('./data/model.h5')
 
 
+
+def visualize_layers(m, x, layer=1):
+    """ return the layer activations from the model """
+    assert(layer in [1,3])
+    partial_model = K.Model(inputs=m.inputs, outputs=m.layers[layer].output)
+    return partial_model.predict(x, batch_size=1)
+
+
 if __name__ == '__main__':
     train_model(num_epochs=50)
