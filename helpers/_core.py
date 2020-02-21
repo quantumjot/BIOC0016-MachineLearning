@@ -21,6 +21,11 @@ PRED_STATES = STATES[0:5]
 MAX_IMAGE_REQUEST = 100
 
 class Image:
+    """ Image
+
+    A wrapper for the numpy array data, such that we can store metadata
+    including the ID, and allow for small modifications of the data.
+    """
     def __init__(self, data, ID):
         assert(isinstance(data, np.ndarray))
         assert(data.ndim == 2)
@@ -44,6 +49,8 @@ class Image:
     def plot(self):
         plt.imshow(self.data)
 
+
+
 class _DatasetContainer:
     def __init__(self):
         self.__data = np.load('./data/test_data.npz')['images']
@@ -51,12 +58,6 @@ class _DatasetContainer:
 
     def __len__(self):
         return self.__data.shape[0]
-
-    # def get_random(self, num_images=1):
-    #     assert(num_images>0 and num_images<MAX_IMAGE_REQUEST)
-    #     random.shuffle(self.__idx)
-    #     images = [normalize_image(self.__data[i,...]) for i in self.__idx[:num_images]]
-    #     return images, self.__idx[:num_images]
 
     def get_random(self, num_images=1):
         assert(num_images>0 and num_images<MAX_IMAGE_REQUEST)
