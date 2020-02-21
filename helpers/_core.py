@@ -247,6 +247,10 @@ def validate_annotation(annotation):
         logging.error('The annotation must be a dictionary')
         validate = False
 
+    # check to see whether it is empty
+    if not annotation:
+        logging.warning('The annotation dictionary is empty')
+
     # check that it has the correct keys
     if not all([k in STATES for k in annotation.keys()]):
         unknown = ', '.join([str(k) for k in annotation.keys() if k not in STATES])
