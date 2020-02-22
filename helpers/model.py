@@ -11,8 +11,6 @@ import tensorflow.keras.layers as KL
 from tensorflow.python.util import deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
-# from _core import normalize_image
-
 def simple_CNN(convolutional_kernels=32):
     """ simple_CNN
 
@@ -46,24 +44,24 @@ def simple_CNN(convolutional_kernels=32):
 
 
 def data_generator(data, batch_size=32):
+    """ generator function to provide data to the network while training
 
+    TODO(arl): this does no augmentation. should really do that for future
+        iterations of this practical
+    """
     num_images = data['images'].shape[0]
 
+    # repeat forever
     while True:
-
         to_use = [n for n in range(num_images)]
         random.shuffle(to_use)
 
         batch_images, batch_labels = [], []
 
+        # get a batch
         while to_use and len(batch_images)<batch_size:
-
-#             print(len(to_use), len(batch_images))
-
             n = to_use.pop(0)
-
             image = normalize_image(data['images'][n,...])
-
             batch_images.append(image[...,np.newaxis])
             batch_labels.append(data['labels'][n])
 
@@ -73,7 +71,7 @@ def data_generator(data, batch_size=32):
 
 
 def train_model(num_epochs=10):
-
+    """ Train the CNN model """
     data = np.load('../data/training_data.npz')
 
     batch_size = 32
