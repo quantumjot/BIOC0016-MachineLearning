@@ -33,6 +33,7 @@ class Image:
 
         self.__data = data
         self.__ID = ID
+        self.__label = 'unknown'
 
     @property
     def ID(self): return self.__ID
@@ -43,11 +44,19 @@ class Image:
     @property
     def data(self): return self.__data
 
+    @property
+    def label(self): return self.__label
+
     def as_tensor(self):
         return self.__data[np.newaxis, ..., np.newaxis]
 
     def plot(self):
         plt.imshow(self.data)
+
+    def assign_label(self, label):
+        assert(label in STATES)
+        self.__label = label
+
 
 
 
@@ -173,29 +182,45 @@ def get_label_from_ID(annotation, image):
     return None
 
 
-def plot_predictions(images, predictions, annotation=None):
+def print_predictions(images, predictions):
+    """ print out the predictions """
+    y_pred = np.argmax(predictions, axis=1)
+    for i, y in enumerate(y_pred):
+        print(f'Image #{images[i].ID:<5} --> {STATES[y]:>12} ({predictions[i,y]:.5f})')
+
+
+def plot_predictions(images, predictions):
+    predictions = np.concatenate([predictions,
+                                  np.zeros((predictions.shape[0],1))],
+                                  axis=1)
     num_images = min(len(images), 5)
     for i in range(num_images):
+
+        pred_order = [(predictions[i,k], STATES[k]) for k in range(predictions.shape[1])]
+        pred_order.sort(key=lambda p: p[0])
+
+        y_pred, y_label = zip(*pred_order)
+
         plt.figure(figsize=(15,5))
         plt.subplot(1,2,1)
         plt.imshow(images[i].data, cmap=plt.cm.gray)
         plt.title(f'Image #{images[i].ID}')
         plt.axis('off')
-        plt.subplot(1,2,2)
-        rect = plt.barh(np.arange(len(PRED_STATES)),
-                        predictions[i,:],
+        ax = plt.subplot(1,2,2)
+        rect = plt.barh(np.arange(len(STATES)),
+                        y_pred,
                         align='center',
                         height=0.75,
-                        tick_label=[s.capitalize() for s in PRED_STATES])
+                        tick_label=[s.capitalize() for s in y_label])
 
-        pred = STATES[int(np.argmax(predictions[i,:]))].capitalize()
-        ground_truth = None
-        if annotation is not None:
-            ground_truth = get_label_from_ID(annotation, images[i])
-            if ground_truth:
-                y = STATES.index(ground_truth)
-                if y<5: rect[y].set_facecolor('red')    # can't plot unknown
-
+        pred = y_label[-1].capitalize()
+        ground_truth = images[i].label
+        y = y_label.index(ground_truth)
+        if y<5:
+            # rect[y].set_facecolor('red')    # can't plot unknown
+            x = rect[y].get_width()
+            ax.text(x+0.01, y-0.01, '*', verticalalignment='center',
+                    fontdict={'fontsize':22, 'color':'r'})
         plt.xlim([0., 1.1])
         plt.xlabel('P(label|data)')
         plt.title(f'Prediction: {pred}, Ground Truth: {ground_truth}')
@@ -285,12 +310,39 @@ def validate_annotation(annotation):
     return validate
 
 
+def annotate_images(images, annotation):
+    """ assign annotation labels to the images """
+    if not validate_annotation(annotation):
+        return
 
-def confusion_matrix(predictions, annotation):
-    """ take the predictions and the annotation, and calculate the confusion matrix """
+    if not annotation:
+        return
+
+    for image in images:
+        label = get_label_from_ID(annotation, image)
+        if label is not None:
+            image.assign_label(label)
+        else:
+            logging.warning(f'Image {image.ID} not found in annotation.')
+
+
+def confusion_matrix(images, predictions):
+    """ take the predictions and the annotation, and calculate the confusion matrix
+
+    from sklearn.metrics import confusion_matrix
+    import numpy as np
+
+    labels = ...
+    predictions = ...
+
+    cm = confusion_matrix(labels, predictions)
+    recall = np.diag(cm) / np.sum(cm, axis = 1)
+    precision = np.diag(cm) / np.sum(cm, axis = 0)
+
+    """
+
     pass
 
-    
 
 
 
