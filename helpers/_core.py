@@ -323,26 +323,152 @@ def annotate_images(images, annotation):
         if label is not None:
             image.assign_label(label)
         else:
-            logging.warning(f'Image {image.ID} not found in annotation.')
+            logging.warning(f'Image {image.ID:>5} not found in annotation.')
 
 
-def confusion_matrix(images, predictions):
-    """ take the predictions and the annotation, and calculate the confusion matrix
+class _ConfusionMatrix:
+    def __init__(self, n_labels=len(STATES)):
+        self.__matrix = np.zeros((n_labels, n_labels), dtype=np.uint)
+        self.__n_examples = 0
+        self.__n_labels = n_labels
 
-    from sklearn.metrics import confusion_matrix
-    import numpy as np
+    def __iter__(self):
+        for i in range(self.__n_labels-1): # don't include unknown
+            yield self.precision[i], self.recall[i], STATES[i]
 
-    labels = ...
-    predictions = ...
+    # def __next__(self):
+    #     for i in range(self.__n_labels):
+    #         yield self.precision[i], self.recall[i], STATES[i]
 
-    cm = confusion_matrix(labels, predictions)
-    recall = np.diag(cm) / np.sum(cm, axis = 1)
-    precision = np.diag(cm) / np.sum(cm, axis = 0)
+    @property
+    def data(self): return self.__matrix
+
+    def __repr__(self):
+        return str(self.data)
+
+    def create(self, images, predictions):
+        y_true = [image.label for image in images]
+        y_pred = [STATES[p] for p in np.argmax(predictions, axis=1)]
+
+        # sanity check, also this is really crude!
+        assert(len(y_true) == len(y_pred))
+        for pred in zip(y_true, y_pred):
+            i, j = STATES.index(pred[0]), STATES.index(pred[1])
+            self.__matrix[i,j] += 1
+
+        return self.__matrix
+
+
+    def plot(self):
+        _plot_confusion_matrix(self.data, labels=STATES)
+
+    @property
+    def correct(self):
+        return np.diag(self.data)
+
+    @property
+    def recall(self):
+        return self.correct / np.sum(self.data, axis=1)
+
+    @property
+    def precision(self):
+        return self.correct / np.sum(self.data, axis=0)
+
+    @property
+    def F1_score(self):
+        return (2.*self.precision*self.recall) / (self.precision+self.recall)
+
+
+
+
+
+
+
+def calculate_confusion_matrix(images, predictions):
+    """ take the predictions and the annotated images, and calculate the
+    confusion matrix """
+
+    cm = _ConfusionMatrix()
+    cm.create(images, predictions)
+    return cm
+
+
+
+def _plot_confusion_matrix(c,
+                          labels=STATES,
+                          scores=True):
+    """ plot_confusion_matrix
+
+    Plot the confusion matrix as an array, with labels.
+
+    Args:
+        c:
+        labels:
+        scores:
+        fmt:
+        save:
+        normalise:
+
+    Notes:
+        Code to add centred scores in each box was modified from here:
+        http://stackoverflow.com/questions/25071968/
+            heatmap-with-text-in-each-cell-with-matplotlibs-pyplot
+
+        TODO(arl): also plot the absolute counts
 
     """
 
-    pass
+    # note the plot maps as x - columns, y - rows
+    # tensorflow confusion matrix:
+    #   The matrix columns represent the prediction labels and the rows
+    #   represent the real labels.
+    # x axis -> prediction, y axis -> real
 
+    # transpose the confusion matrix to have real on x, predictions on y
+    c_norm = c.T
+
+    fig, ax = plt.subplots(figsize=(10,6))
+    heatmap = ax.pcolor(c_norm, cmap=plt.cm.viridis, vmin=0.)
+
+    counts = np.ravel(c_norm).astype(np.int)
+
+    if scores:
+        # plot the stats in the cells
+        heatmap.update_scalarmappable()
+        for p, color, count, acc in zip(heatmap.get_paths(),
+                                        heatmap.get_facecolors(),
+                                        counts,
+                                        heatmap.get_array()):
+            x, y = p.vertices[:-2, :].mean(0)
+            if np.all(color[:2] > 0.5):
+                color = (0.0, 0.0, 0.0)
+            else:
+                color = (1.0, 1.0, 1.0)
+
+            txt = f"{count}"
+            ax.text(x, y, txt, ha="center", va="center", color=color)
+
+    # put the major ticks at the middle of each cell
+    ax.set_xticks(np.arange(c_norm.shape[0])+0.5, minor=False)
+    ax.set_yticks(np.arange(c_norm.shape[1])+0.5, minor=False)
+
+    # want a more natural, table-like display
+    #ax.invert_yaxis()
+    ax.set_xticklabels([l.title() for l in labels], minor=False, rotation='vertical')
+    ax.set_yticklabels([l.title() for l in labels], minor=False)
+
+    plt.axis('image')
+
+    plt.xlabel(r'Ground truth')
+    plt.ylabel(r'Prediction')
+    plt.title('Confusion matrix ({0} examples)'.format(np.sum(c).astype(np.int)))
+    plt.colorbar(heatmap).set_label('Counts')
+
+    # Tweak spacing to prevent clipping of tick-labels
+    #plt.margins(0.2)
+    plt.subplots_adjust(bottom=.25, left=.25)
+
+    plt.show()
 
 
 
