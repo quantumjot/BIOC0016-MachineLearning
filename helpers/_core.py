@@ -286,6 +286,13 @@ def validate_annotation(annotation):
 
 
 
+def confusion_matrix(predictions, annotation):
+    """ take the predictions and the annotation, and calculate the confusion matrix """
+    pass
+
+    
+
+
 
 def load_CNN_model():
     return _load_model()
