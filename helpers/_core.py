@@ -336,10 +336,6 @@ class _ConfusionMatrix:
         for i in range(self.__n_labels-1): # don't include unknown
             yield self.precision[i], self.recall[i], STATES[i]
 
-    # def __next__(self):
-    #     for i in range(self.__n_labels):
-    #         yield self.precision[i], self.recall[i], STATES[i]
-
     @property
     def data(self): return self.__matrix
 
@@ -357,7 +353,6 @@ class _ConfusionMatrix:
             self.__matrix[i,j] += 1
 
         return self.__matrix
-
 
     def plot(self):
         _plot_confusion_matrix(self.data, labels=STATES)
@@ -405,9 +400,6 @@ def _plot_confusion_matrix(c,
         c:
         labels:
         scores:
-        fmt:
-        save:
-        normalise:
 
     Notes:
         Code to add centred scores in each box was modified from here:
@@ -417,13 +409,6 @@ def _plot_confusion_matrix(c,
         TODO(arl): also plot the absolute counts
 
     """
-
-    # note the plot maps as x - columns, y - rows
-    # tensorflow confusion matrix:
-    #   The matrix columns represent the prediction labels and the rows
-    #   represent the real labels.
-    # x axis -> prediction, y axis -> real
-
     # transpose the confusion matrix to have real on x, predictions on y
     c_norm = c.T
 
@@ -465,7 +450,6 @@ def _plot_confusion_matrix(c,
     plt.colorbar(heatmap).set_label('Counts')
 
     # Tweak spacing to prevent clipping of tick-labels
-    #plt.margins(0.2)
     plt.subplots_adjust(bottom=.25, left=.25)
 
     plt.show()

@@ -14,7 +14,8 @@ deprecation._PRINT_DEPRECATION_WARNINGS = False
 def simple_CNN(convolutional_kernels=32):
     """ simple_CNN
 
-    Build a simple convolutional classifier, that returns a one-hot classification (5,)
+    Build a simple convolutional classifier, that returns a one-hot
+    classification (n,)
 
     Args:
         convolutional_kernels: the number of kernels for the conv layers
