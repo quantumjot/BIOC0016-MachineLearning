@@ -71,7 +71,11 @@ class _DatasetContainer:
     def get_random(self, num_images=1):
         assert(num_images>0 and num_images<MAX_IMAGE_REQUEST)
         random.shuffle(self.__idx)
-        return [Image(normalize_image(self.__data[i,...]), self.__idx[i]) for i in self.__idx[:num_images]]
+        images = [Image(normalize_image(self.__data[i,...]), self.__idx[i]) for i in self.__idx[:num_images]]
+
+        # sort the images in numerical order
+        images.sort(key=lambda im: im.ID)
+        return images
 
 
 
