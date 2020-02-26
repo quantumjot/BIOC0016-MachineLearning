@@ -68,10 +68,15 @@ class _DatasetContainer:
     def __len__(self):
         return self.__data.shape[0]
 
+    def __getitem__(self, idx):
+        return Image(normalize_image(self.__data[idx,...]), idx)
+
     def get_random(self, num_images=1):
         assert(num_images>0 and num_images<MAX_IMAGE_REQUEST)
         random.shuffle(self.__idx)
-        images = [Image(normalize_image(self.__data[i,...]), self.__idx[i]) for i in self.__idx[:num_images]]
+
+        # grab the images
+        images = [self[i] for i in self.__idx[:num_images]]
 
         # sort the images in numerical order
         images.sort(key=lambda im: im.ID)
@@ -83,7 +88,13 @@ class _DatasetContainer:
 dataset = _DatasetContainer()
 
 def get_example_images(num_images=1):
+    """ get a sample of images from the dataset """
     return dataset.get_random(num_images=num_images)
+
+def get_specific_images(idx):
+    """ get specific example images """
+    assert(isinstance(idx, list))
+    return [dataset[i] for i in idx]
 
 
 
