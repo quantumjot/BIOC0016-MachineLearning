@@ -290,6 +290,7 @@ def validate_annotation(annotation):
     # check to see whether it is empty
     if not annotation:
         logging.warning('The annotation dictionary is empty')
+        validate = False
 
     # check that it has the correct keys
     if not all([k in STATES for k in annotation.keys()]):
