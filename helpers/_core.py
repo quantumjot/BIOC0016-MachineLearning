@@ -481,4 +481,4 @@ def _plot_confusion_matrix(c,
 
 
 def load_CNN_model():
-    return _load_model()
+    return _load_model(relative_path('../data/model.h5'))
