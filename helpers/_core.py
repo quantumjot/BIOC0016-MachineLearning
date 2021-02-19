@@ -20,6 +20,13 @@ STATES = ['interphase', 'prometaphase', 'metaphase', 'anaphase', 'apoptosis', 'u
 PRED_STATES = STATES[0:5]
 MAX_IMAGE_REQUEST = 100
 
+FILEPATH = os.path.dirname(__file__)
+
+
+def relative_path(pth: str):
+    return os.path.join(FILEPATH, pth)
+
+
 class Image:
     """ Image
 
@@ -62,7 +69,8 @@ class Image:
 
 class _DatasetContainer:
     def __init__(self):
-        self.__data = np.load('./data/test_data.npz')['images']
+        # self.__data = np.load('./data/test_data.npz')['images']
+        self.__data = np.load(relative_path('data/test_data.npz'))['images']
         self.__idx = [i for i in range(self.__data.shape[0])]
 
     def __len__(self):
