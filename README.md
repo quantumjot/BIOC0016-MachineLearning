@@ -5,7 +5,7 @@
 
 If you are having difficulty running this on mybinder, you can also run it as a Google Colab notebook. However, you will need a Google account for this to work:
 
-![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/quantumjot/BIOC0016-MachineLearning/blob/master/index.ipynb)
+[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/quantumjot/BIOC0016-MachineLearning/blob/master/index.ipynb)
 
 
 ### Machine Learning / Bioimage informatics
