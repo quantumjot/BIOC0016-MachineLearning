@@ -90,7 +90,7 @@ def train_model(num_epochs=10):
 
 def load_model(filename):
     """ load the pre-trained model """
-    return K.models.load_model(filename)
+    return K.models.load_model(filename, compile=False)
 
 
 
