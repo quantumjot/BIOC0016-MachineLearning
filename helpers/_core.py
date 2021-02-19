@@ -70,7 +70,7 @@ class Image:
 class _DatasetContainer:
     def __init__(self):
         # self.__data = np.load('./data/test_data.npz')['images']
-        self.__data = np.load(relative_path('data/test_data.npz'))['images']
+        self.__data = np.load(relative_path('../data/test_data.npz'))['images']
         self.__idx = [i for i in range(self.__data.shape[0])]
 
     def __len__(self):
