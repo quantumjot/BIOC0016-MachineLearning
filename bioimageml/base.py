@@ -11,7 +11,7 @@ RNG = np.random.default_rng()
 DATA_PATH = Path(__file__).parent / "data"
 TORCH_DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 IMAGE_MEAN_STD = (45.1938853515625, 39.78675684923092)
-CSS_PATH = Path(__file__).parent.parent / "files" / "style.css"
+CSS_PATH = Path(__file__).parent / "files" / "style.css"
 
 
 class ImageLabel(enum.Enum):
