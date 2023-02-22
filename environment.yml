@@ -11,4 +11,4 @@ dependencies:
   - pytorch
   - torchvision
   - pip:
-    - ipyannotation
+    - ipyannotations
